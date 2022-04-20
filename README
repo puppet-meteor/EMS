@@ -51,7 +51,7 @@ Other important parameters can be found in afl-fuzz.c, for instance,
 
 Having fun with MOpt-AFL. 
 
-<!--
+<!---
 ### Citation:
 ```
 @inproceedings {236282,
