@@ -6,17 +6,15 @@ Hi guys, we open source the prototype of EMS. EMS is a coverage-based fuzzer tha
 ### 2. Parameter Introduction
 
 To collect efficient mutation strategies as inter-PBOM, you can run the following cmds. 
-`
+```
 # export EMS_INTER_TRIAL_PBOM=/path_to_store/random_file_name.txt
 # /ems/afl-fuzz -i $input -o $output (-L 0 -t 600+  -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] 
-`
+```
 After the fuzzing process is done, you can obtain the random_file_name.txt as inter-PBOM for other fuzzing trials. 
 
 In our source code, we provide a initial inter-PBOM named ems4.txt, which is collected from a 5-hour trial on `pdfimages`.
 Then, to utilize this inter-PBOM, you can run a cmd as follows. 
-`
-# /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+  -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] 
-`
+`# /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+  -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] `
 
 
 
