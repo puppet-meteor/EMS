@@ -12,19 +12,19 @@ To collect efficient mutation strategies as inter-PBOM, you can run the followin
 ```
 After the fuzzing process is done, you can obtain the random_file_name.txt as inter-PBOM for other fuzzing trials. 
 
-In our source code, we provide a initial inter-PBOM named ems4.txt, which is collected from a 5-hour trial on `pdfimages`.
+In our source code, we provide an initial inter-PBOM named ems4.txt, which is collected from a 5-hour trial on `pdfimages`.
 Then, to utilize this inter-PBOM, you can run a cmd as follows. 
 ```# /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+ -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] ```
 
 
-We also implement an instrumentation similar to the one in [CollAFL](http://netsec.ccert.edu.cn/files/papers/sp18-collafl.pdf). To utilze this instrumentation, you need to install llvm 11+. Then, compile the instrumentation in `/ems/lto_mode`, in which you can obtain `afl-clang-lto` and `afl-clang-lto++`. The cmds to utilize this instrumentation are as follows. 
+We also implement instrumentation similar to the one in [CollAFL](http://netsec.ccert.edu.cn/files/papers/sp18-collafl.pdf). To utilize this instrumentation, you need to install llvm 11+. Then, compile the instrumentation in `/ems/lto_mode`, in which you can obtain `afl-clang-lto` and `afl-clang-lto++`. The cmds to utilize this instrumentation are as follows. 
 ```
 # export AFL_LLVM_DOCUMENT_IDS=/path_to_store/ems_lto_edges.txt
 # export CC=/ems/lto_mode/afl-clang-lto
 # export CXX=/ems/lto_mode/afl-clang-lto++
 # [...compile target programs...] 
 ```
-Then, you achieve to instrument target programs without collision issues and obtain `ems_lto_edges.txt`, which stores the size of bitmap. Note that if you use this instrumentation, you have to load the bitmap size like follows.
+Then, you achieve to instrument target programs without collision issues and obtain `ems_lto_edges.txt`, which stores the size of bitmap. Note that if you use this instrumentation, you have to load the bitmap size as follows.
 ```
 # export AFL_LLVM_DOCUMENT_IDS=/path_to_store/ems_lto_edges.txt
 
