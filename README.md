@@ -3,7 +3,7 @@
 Hi guys, we open source the prototype of EMS. EMS is a coverage-based fuzzer that utilizes a customized  Probabilistic Byte Orientation Model (PBOM) to reuse the efficient mutation strategies from inter- and intra-trials. As shown in Table 8 of the [paper](https://www.ndss-symposium.org/wp-content/uploads/2022-162-paper.pdf), more than half of the efficient mutation strategies can be collected in 5 hours. So EMS mainly improves the fuzzing performance by utilizing efficient strategies more times. 
 
 
-### 2. Parameter Introduction
+### 2. Introduction to Usage
 
 To collect efficient mutation strategies as inter-PBOM, you can run the following cmds. 
 ```
@@ -30,6 +30,8 @@ Then, you achieve to instrument target programs without collision issues and obt
 
 # /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+ -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] 
 ```
+
+We also provide a dockerfile for FuzzBench testing. To use it, you can simply copy `ems_fuzzbench` to `/fuzzbench/fuzzers/` and run `make format`. Then, you can evaluate EMS on FuzzBench. 
 
 
 Having fun with EMS. See you next time!
