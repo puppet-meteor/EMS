@@ -42,6 +42,12 @@ We may develop more kinds of history-driven operators (like constraint orientati
 
 ### Citation:
 ```
-Coming soon. 
+@inproceedings{lyu2022ems,
+  title={EMS: History-Driven Mutation for Coverage-based Fuzzing},
+  author={Chenyang Lyu and Shouling Ji and Xuhong Zhang and Hong Liang and Binbin Zhao and Kangjie Lu and Ting Wang and Reheem Beyah},
+  booktitle={29th Annual Network and Distributed System Security Symposium)},
+  pages={},
+  year={2022}
+}
 ```
 
