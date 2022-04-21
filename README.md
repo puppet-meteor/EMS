@@ -31,7 +31,7 @@ Then, you achieve to instrument target programs without collision issues and obt
 # /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+ -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] 
 ```
 
-We also provide a dockerfile for FuzzBench testing. To use it, you can simply copy `ems_fuzzbench` to `/fuzzbench/fuzzers/` and run `make format`. Then, you can evaluate EMS on FuzzBench. 
+We also provide a dockerfile for FuzzBench testing. To use it, you can simply copy `ems_fuzzbench` to `/fuzzbench/fuzzers/` and run `make format`. Then, you can evaluate EMS on FuzzBench. It's a little awkward that our `lto_mode` instrumentation cannot work on all the target programs of FuzzBench. 
 
 
 Having fun with EMS. See you next time!
