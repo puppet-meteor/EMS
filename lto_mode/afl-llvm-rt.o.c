@@ -276,6 +276,10 @@ __attribute__((constructor(CONST_PRIO))) void __afl_auto_init(void)
   __afl_manual_init();
 }
 
+
+
+
+
 /* Init callback. Populates instrumentation IDs. Note that we're using
    ID of 0 as a special value to indicate non-instrumented bits. That may
    still touch the bitmap, but in a fairly harmless way. */
