@@ -37,7 +37,7 @@ Then, you achieve to instrument target programs without collision issues and obt
 We also provide a dockerfile for FuzzBench testing. You can simply copy `ems_fuzzbench` to `/fuzzbench/fuzzers/` and run `make format`. Then, you can evaluate EMS on FuzzBench. It's a little awkward that our `lto_mode` instrumentation cannot work on all the target programs of FuzzBench. Users can refer to the instrumentation of [AFL++](https://github.com/AFLplusplus/AFLplusplus) for more insights. AFL++ is a powerful fuzzer with extremely high update frequency, which contains multiple kinds of instrumentations and new designs like improving the implementation of forkserver. 
 
 
-Having fun with EMS. See you next time!
+We may develop more kinds of history-driven operators (like constraint orientation and location orientation models) and construct `EMS_plus`. I'm not sure, depending on my free time. Having fun with EMS. See you next time!
 
 
 ### Citation:
