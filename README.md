@@ -14,7 +14,10 @@ After the fuzzing process is done, you can obtain the random_file_name.txt as in
 
 In our source code, we provide an initial inter-PBOM named ems4.txt, which is collected from a 5-hour trial on `pdfimages`.
 Then, to utilize this inter-PBOM, you can run a cmd as follows. 
-```# /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+ -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] ```
+
+```
+# /ems/afl-fuzz -i $input -o $output  -G /ems/ems4.txt  (-L 0 -t 600+ -m 5000) (-V $time if you would like to control fuzzing duration) -- /path/to/program [...params...] 
+```
 
 
 We also implement instrumentation similar to the one in [CollAFL](http://netsec.ccert.edu.cn/files/papers/sp18-collafl.pdf). To utilize this instrumentation, you need to install llvm 11+. Then, compile the instrumentation in `/ems/lto_mode`, in which you can obtain `afl-clang-lto` and `afl-clang-lto++`. The cmds to utilize this instrumentation are as follows. 
