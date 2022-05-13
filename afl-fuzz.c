@@ -154,7 +154,7 @@ double bytelen_prob[3];
 
 static s32 dev_urandom_fd = -1; /* Persistent fd for /dev/urandom   */
 
-u8 *tmplyu;
+u8 *tmplyu = NULL;
 const unsigned char allChar[63] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void generateString(unsigned char *dest, const unsigned int len)
@@ -22463,7 +22463,8 @@ stop_fuzzing:
 
   fclose(plot_file);
   destroy_queue();
-  remove(tmplyu);
+  if(!out_file && tmplyu != NULL)
+    remove(tmplyu);
   destroy_extras();
   ck_free(target_path);
   ck_free(sync_id);

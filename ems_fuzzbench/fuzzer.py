@@ -19,7 +19,7 @@ def build():
     build_directory = os.environ['OUT']
     edge_file = '/out/ems_lto_edges.txt'
     os.environ['AFL_LLVM_DOCUMENT_IDS'] = edge_file
-    os.environ['AFL_INST_RATIO'] = '50'
+    os.environ['AFL_INST_RATIO'] = '35'
 
 
     if os.path.isfile('/usr/local/bin/llvm-ranlib-13'):
