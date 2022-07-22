@@ -5459,8 +5459,7 @@ abort_trimming:
    error conditions, returning 1 if it's time to bail out. This is
    a helper function for fuzz_one(). */
 
-EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len, struct loghistory *tmploghead,
-                            struct loghistory *tmplognow, u64 *tmp_favorite_list, u64 tmp_favorite_list_num)
+EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len, u64 *tmp_favorite_list, u64 tmp_favorite_list_num)
 {
 
   u8 fault;
