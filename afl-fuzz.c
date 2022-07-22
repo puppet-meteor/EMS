@@ -87,6 +87,7 @@ struct loghistory
   struct loghistory *next;
 };
 static struct loghistory *loghead, *lognow, *lognowprev;
+static struct loghistory *tmploghead, *tmplognow;
 
 struct start_byte
 {
@@ -5758,7 +5759,6 @@ EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len, struct loghistory
             tmptmplognowfront = tmploghead;
             ck_free(tmptmplognow);
             tmptmplognow = tmploghead;
-            tmptmplognowfront = tmploghead;
           }
           else
           {
@@ -6418,12 +6418,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -6432,7 +6432,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -6526,12 +6526,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -6540,7 +6540,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -6565,12 +6565,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -6581,7 +6581,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -6633,12 +6633,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = stage_cur;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     out_buf[stage_cur] ^= 0xFF;
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -6646,7 +6646,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     /* We also use this stage to pull off a simple trick: we identify
@@ -6727,12 +6727,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
     tmploghead->bytelen = 2;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u16 *)(out_buf + i) ^= 0xFFFF;
     tmplognow->outdata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
@@ -6740,7 +6740,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -6777,12 +6777,12 @@ static u8 normal_fuzz_one(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u32 *)(out_buf + stage_cur_byte); // (out_buf[stage_cur_byte]) << 24 + out_buf[stage_cur_byte + 1] << 16 + out_buf[stage_cur_byte + 2] << 8 + out_buf[stage_cur_byte + 3];
     tmploghead->bytelen = 4;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u32 *)(out_buf + i) ^= 0xFFFFFFFF;
 
@@ -6792,7 +6792,7 @@ static u8 normal_fuzz_one(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -6852,12 +6852,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig + j;
 
@@ -6866,7 +6866,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -6880,12 +6880,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig - j;
 
@@ -6894,7 +6894,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -6957,12 +6957,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -6970,7 +6970,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -6982,12 +6982,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -6995,7 +6995,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7011,12 +7011,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) + j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -7024,7 +7024,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7036,12 +7036,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) - j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -7049,7 +7049,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7111,12 +7111,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
@@ -7124,7 +7124,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7136,12 +7136,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
@@ -7149,7 +7149,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7165,12 +7165,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) + j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
@@ -7178,7 +7178,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7190,12 +7190,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) - j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
@@ -7203,7 +7203,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7265,12 +7265,12 @@ skip_arith:
 
       stage_cur_val = interesting_8[j];
 
-      struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+      tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
       tmploghead->indata = (out_buf[i]); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
       tmploghead->bytelen = 1;
       tmploghead->type = 0; // overwrite
       tmploghead->next = NULL;
-      struct loghistory *tmplognow = tmploghead;
+      tmplognow = tmploghead;
 
       out_buf[i] = interesting_8[j];
       tmplognow->outdata = out_buf[i];
@@ -7278,7 +7278,7 @@ skip_arith:
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
 
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       out_buf[i] = orig;
@@ -7333,12 +7333,12 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = interesting_16[j];
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -7346,7 +7346,7 @@ skip_arith:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7361,12 +7361,12 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(interesting_16[j]);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -7374,7 +7374,7 @@ skip_arith:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7433,12 +7433,12 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = interesting_32[j];
         tmplognow->outdata = *(u32 *)(out_buf + i);
@@ -7446,7 +7446,7 @@ skip_arith:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7461,19 +7461,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(interesting_32[j]);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -7538,8 +7538,8 @@ skip_interest:
         stage_max--;
         continue;
       }
-      struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
-      struct loghistory *tmplognow = tmploghead;
+      tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+      tmplognow = tmploghead;
       last_len = extras[j].len;
       switch (last_len)
       {
@@ -7590,7 +7590,7 @@ skip_interest:
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
 
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -7630,8 +7630,8 @@ skip_interest:
         continue;
       }
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = tmploghead;
+      tmploghead = NULL;
+      tmplognow = tmploghead;
       switch (extras[j].len)
       {
       case 1:
@@ -7691,7 +7691,7 @@ skip_interest:
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
 
-      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmp_favorite_list, tmp_favorite_list_num))
       {
         ck_free(ex_tmp);
         goto abandon_entry;
@@ -7748,8 +7748,8 @@ skip_user_extras:
 
       last_len = a_extras[j].len;
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = tmploghead;
+      tmploghead = NULL;
+      tmplognow = tmploghead;
       switch (last_len)
       {
       case 1:
@@ -7802,7 +7802,7 @@ skip_user_extras:
 
       // memcpy(out_buf + i, a_extras[j].data, last_len);
 
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -7878,8 +7878,8 @@ havoc_stage:
     u32 use_stacking = 1 << (1 + UR(HAVOC_STACK_POW2));
 
     stage_cur_val = use_stacking;
-    struct loghistory *tmploghead = NULL;
-    struct loghistory *tmplognow = NULL;
+    tmploghead = NULL;
+    tmplognow = NULL;
     u64 tmp_favorite_list[500000];
     u64 tmp_favorite_list_num = 0;
 
@@ -9367,7 +9367,7 @@ havoc_stage:
       }
     }
 
-    if (common_fuzz_stuff(argv, out_buf, temp_len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, temp_len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     /* out_buf might have been mangled a bit, so let's restore it to its
@@ -9742,12 +9742,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -9755,7 +9755,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -9849,12 +9849,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -9863,7 +9863,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -9888,12 +9888,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -9904,7 +9904,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -9956,12 +9956,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     out_buf[stage_cur] ^= 0xFF;
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -9969,7 +9969,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     /* We also use this stage to pull off a simple trick: we identify
@@ -10050,12 +10050,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
     tmploghead->bytelen = 2;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u16 *)(out_buf + i) ^= 0xFFFF;
     tmplognow->outdata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
@@ -10063,7 +10063,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -10100,12 +10100,12 @@ static u8 pilot_fuzzing(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u32 *)(out_buf + stage_cur_byte); // (out_buf[stage_cur_byte]) << 24 + out_buf[stage_cur_byte + 1] << 16 + out_buf[stage_cur_byte + 2] << 8 + out_buf[stage_cur_byte + 3];
     tmploghead->bytelen = 4;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u32 *)(out_buf + i) ^= 0xFFFFFFFF;
 
@@ -10114,7 +10114,7 @@ static u8 pilot_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -10174,12 +10174,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig + j;
 
@@ -10187,7 +10187,7 @@ skip_bitflip:
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10201,12 +10201,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig - j;
 
@@ -10214,7 +10214,7 @@ skip_bitflip:
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10277,12 +10277,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -10290,7 +10290,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10302,12 +10302,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -10315,7 +10315,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10331,12 +10331,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) + j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -10344,7 +10344,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10356,12 +10356,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) - j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -10369,7 +10369,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10431,19 +10431,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10455,19 +10455,19 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10483,19 +10483,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) + j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10507,19 +10507,19 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) - j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10581,12 +10581,12 @@ skip_arith:
 
       stage_cur_val = interesting_8[j];
 
-      struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+      tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
       tmploghead->indata = (out_buf[i]); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
       tmploghead->bytelen = 1;
       tmploghead->type = 0; // overwrite
       tmploghead->next = NULL;
-      struct loghistory *tmplognow = tmploghead;
+      tmplognow = tmploghead;
 
       out_buf[i] = interesting_8[j];
       tmplognow->outdata = out_buf[i];
@@ -10594,7 +10594,7 @@ skip_arith:
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
 
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       out_buf[i] = orig;
@@ -10649,19 +10649,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = interesting_16[j];
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10676,19 +10676,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(interesting_16[j]);
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10747,19 +10747,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = interesting_32[j];
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10774,19 +10774,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(interesting_32[j]);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -10854,8 +10854,8 @@ skip_interest:
 
       last_len = extras[j].len;
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
       switch (last_len)
       {
       case 1:
@@ -10908,7 +10908,7 @@ skip_interest:
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
 
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -10948,8 +10948,8 @@ skip_interest:
         continue;
       }
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
 
       switch (extras[j].len)
       {
@@ -11008,7 +11008,7 @@ skip_interest:
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmp_favorite_list, tmp_favorite_list_num))
       {
         ck_free(ex_tmp);
         goto abandon_entry;
@@ -11065,8 +11065,8 @@ skip_user_extras:
 
       last_len = a_extras[j].len;
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
       switch (last_len)
       {
       case 1:
@@ -11120,7 +11120,7 @@ skip_user_extras:
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -11189,19 +11189,19 @@ skip_extras:
           case 0:
           { // overwrite
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             out_buf[select_location] = (u8)(dict1d_cur->outdata);
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             out_buf[select_location] = (u8)(dict2d_cur->indata);
@@ -11216,18 +11216,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 1, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11245,18 +11245,18 @@ skip_extras:
             memcpy(new_buf + select_location + 1, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11296,18 +11296,18 @@ skip_extras:
           {
             *(u16 *)(out_buf + select_location) = (u16)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u16 *)(out_buf + select_location) = (u16)(dict2d_cur->indata);
@@ -11322,18 +11322,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 2, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11351,18 +11351,18 @@ skip_extras:
             memcpy(new_buf + select_location + 2, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11402,18 +11402,18 @@ skip_extras:
           {
             *(u32 *)(out_buf + select_location) = (u32)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u32 *)(out_buf + select_location) = (u32)(dict2d_cur->indata);
@@ -11428,18 +11428,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 4, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11457,18 +11457,18 @@ skip_extras:
             memcpy(new_buf + select_location + 4, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11547,19 +11547,19 @@ skip_extras:
           case 0:
           { // overwrite
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             out_buf[select_location] = (u8)(dict1d_cur->outdata);
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             out_buf[select_location] = (u8)(dict2d_cur->indata);
@@ -11574,18 +11574,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 1, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11603,18 +11603,18 @@ skip_extras:
             memcpy(new_buf + select_location + 1, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11655,18 +11655,18 @@ skip_extras:
           {
             *(u16 *)(out_buf + select_location) = (u16)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u16 *)(out_buf + select_location) = (u16)(dict2d_cur->indata);
@@ -11681,18 +11681,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 2, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11710,18 +11710,18 @@ skip_extras:
             memcpy(new_buf + select_location + 2, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11762,18 +11762,18 @@ skip_extras:
           {
             *(u32 *)(out_buf + select_location) = (u32)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u32 *)(out_buf + select_location) = (u32)(dict2d_cur->indata);
@@ -11788,18 +11788,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 4, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11817,18 +11817,18 @@ skip_extras:
             memcpy(new_buf + select_location + 4, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -11957,8 +11957,8 @@ pacemaker_fuzzing:
           stage_cycles_puppet_v3[swarm_now][i] = stage_cycles_puppet_v2[swarm_now][i];
         }
 
-        struct loghistory *tmploghead = NULL;
-        struct loghistory *tmplognow = NULL;
+        tmploghead = NULL;
+        tmplognow = NULL;
         u64 tmp_favorite_list[500000];
         u64 tmp_favorite_list_num = 0;
 
@@ -14717,7 +14717,7 @@ pacemaker_fuzzing:
 
         u64 temp_total_found = queued_paths + unique_crashes;
 
-        if (common_fuzz_stuff(argv, out_buf, temp_len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, temp_len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry_puppet;
 
         /* out_buf might have been mangled a bit, so let's restore it to its
@@ -15162,12 +15162,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -15175,7 +15175,7 @@ static u8 core_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -15269,12 +15269,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -15282,7 +15282,7 @@ static u8 core_fuzzing(char **argv)
     u64 tmp_favorite_list[500000];
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -15307,12 +15307,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur >> 3;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     FLIP_BIT(out_buf, stage_cur);
     FLIP_BIT(out_buf, stage_cur + 1);
@@ -15322,7 +15322,7 @@ static u8 core_fuzzing(char **argv)
     u64 tmp_favorite_list[500000];
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     FLIP_BIT(out_buf, stage_cur);
@@ -15374,12 +15374,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = stage_cur;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = out_buf[stage_cur_byte];
     tmploghead->bytelen = 1;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     out_buf[stage_cur] ^= 0xFF;
     tmplognow->outdata = out_buf[stage_cur_byte];
@@ -15387,7 +15387,7 @@ static u8 core_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
 
     /* We also use this stage to pull off a simple trick: we identify
@@ -15468,12 +15468,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
     tmploghead->bytelen = 2;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u16 *)(out_buf + i) ^= 0xFFFF;
     tmplognow->outdata = *(u16 *)(out_buf + stage_cur_byte); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
@@ -15481,7 +15481,7 @@ static u8 core_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -15518,12 +15518,12 @@ static u8 core_fuzzing(char **argv)
 
     stage_cur_byte = i;
 
-    struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+    tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
     tmploghead->indata = *(u32 *)(out_buf + stage_cur_byte); // (out_buf[stage_cur_byte]) << 24 + out_buf[stage_cur_byte + 1] << 16 + out_buf[stage_cur_byte + 2] << 8 + out_buf[stage_cur_byte + 3];
     tmploghead->bytelen = 4;
     tmploghead->type = 0; // overwrite
     tmploghead->next = NULL;
-    struct loghistory *tmplognow = tmploghead;
+    tmplognow = tmploghead;
 
     *(u32 *)(out_buf + i) ^= 0xFFFFFFFF;
 
@@ -15532,7 +15532,7 @@ static u8 core_fuzzing(char **argv)
     tmp_favorite_list[0] = stage_cur_byte;
     u64 tmp_favorite_list_num = 1;
 
-    if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+    if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
       goto abandon_entry;
     stage_cur++;
 
@@ -15592,12 +15592,12 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig + j;
 
@@ -15605,7 +15605,7 @@ skip_bitflip:
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15619,12 +15619,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = out_buf[i];
         tmploghead->bytelen = 1;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         out_buf[i] = orig - j;
 
@@ -15632,7 +15632,7 @@ skip_bitflip:
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15695,19 +15695,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15719,12 +15719,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -15732,7 +15732,7 @@ skip_bitflip:
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
 
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15748,19 +15748,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) + j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15772,12 +15772,12 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(SWAP16(orig) - j);
         tmplognow->outdata = *(u16 *)(out_buf + i);
@@ -15785,7 +15785,7 @@ skip_bitflip:
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15847,19 +15847,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig + j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15871,19 +15871,19 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = orig - j;
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15899,19 +15899,19 @@ skip_bitflip:
 
         stage_cur_val = j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) + j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15923,19 +15923,19 @@ skip_bitflip:
 
         stage_cur_val = -j;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(SWAP32(orig) - j);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -15997,19 +15997,19 @@ skip_arith:
 
       stage_cur_val = interesting_8[j];
 
-      struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+      tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
       tmploghead->indata = (out_buf[i]); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
       tmploghead->bytelen = 1;
       tmploghead->type = 0; // overwrite
       tmploghead->next = NULL;
-      struct loghistory *tmplognow = tmploghead;
+      tmplognow = tmploghead;
 
       out_buf[i] = interesting_8[j];
       tmplognow->outdata = out_buf[i];
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       out_buf[i] = orig;
@@ -16064,19 +16064,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = interesting_16[j];
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -16091,19 +16091,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u16 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 2;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u16 *)(out_buf + i) = SWAP16(interesting_16[j]);
         tmplognow->outdata = *(u16 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -16162,19 +16162,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_LE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = interesting_32[j];
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -16189,19 +16189,19 @@ skip_arith:
 
         stage_val_type = STAGE_VAL_BE;
 
-        struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+        tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
         tmploghead->indata = *(u32 *)(out_buf + i); // out_buf[stage_cur_byte] << 8 + out_buf[stage_cur_byte + 1];
         tmploghead->bytelen = 4;
         tmploghead->type = 0; // overwrite
         tmploghead->next = NULL;
-        struct loghistory *tmplognow = tmploghead;
+        tmplognow = tmploghead;
 
         *(u32 *)(out_buf + i) = SWAP32(interesting_32[j]);
         tmplognow->outdata = *(u32 *)(out_buf + i);
         u64 tmp_favorite_list[500000];
         tmp_favorite_list[0] = i;
         u64 tmp_favorite_list_num = 1;
-        if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry;
         stage_cur++;
       }
@@ -16269,8 +16269,8 @@ skip_interest:
 
       last_len = extras[j].len;
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
       switch (last_len)
       {
       case 1:
@@ -16323,7 +16323,7 @@ skip_interest:
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -16363,8 +16363,8 @@ skip_interest:
         continue;
       }
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
       switch (extras[j].len)
       {
       case 1:
@@ -16422,7 +16422,7 @@ skip_interest:
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, ex_tmp, len + extras[j].len, tmp_favorite_list, tmp_favorite_list_num))
       {
         ck_free(ex_tmp);
         goto abandon_entry;
@@ -16479,8 +16479,8 @@ skip_user_extras:
 
       last_len = a_extras[j].len;
 
-      struct loghistory *tmploghead = NULL;
-      struct loghistory *tmplognow = NULL;
+      tmploghead = NULL;
+      tmplognow = NULL;
       switch (last_len)
       {
       case 1:
@@ -16533,7 +16533,7 @@ skip_user_extras:
       u64 tmp_favorite_list[500000];
       tmp_favorite_list[0] = i;
       u64 tmp_favorite_list_num = 1;
-      if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+      if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
         goto abandon_entry;
 
       stage_cur++;
@@ -16603,18 +16603,18 @@ skip_extras:
           case 0:
           { // overwrite
             out_buf[select_location] = (u8)(dict1d_cur->outdata);
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             out_buf[select_location] = (u8)(dict2d_cur->indata);
@@ -16629,18 +16629,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 1, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16658,18 +16658,18 @@ skip_extras:
             memcpy(new_buf + select_location + 1, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16710,18 +16710,18 @@ skip_extras:
           {
             *(u16 *)(out_buf + select_location) = (u16)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u16 *)(out_buf + select_location) = (u16)(dict2d_cur->indata);
@@ -16736,18 +16736,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 2, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16765,18 +16765,18 @@ skip_extras:
             memcpy(new_buf + select_location + 2, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16817,18 +16817,18 @@ skip_extras:
           {
             *(u32 *)(out_buf + select_location) = (u32)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u32 *)(out_buf + select_location) = (u32)(dict2d_cur->indata);
@@ -16843,18 +16843,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 4, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16872,18 +16872,18 @@ skip_extras:
             memcpy(new_buf + select_location + 4, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -16961,18 +16961,18 @@ skip_extras:
           case 0:
           { // overwrite
             out_buf[select_location] = (u8)(dict1d_cur->outdata);
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             out_buf[select_location] = (u8)(dict2d_cur->indata);
@@ -16987,18 +16987,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 1, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17016,18 +17016,18 @@ skip_extras:
             memcpy(new_buf + select_location + 1, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 1;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17068,18 +17068,18 @@ skip_extras:
           {
             *(u16 *)(out_buf + select_location) = (u16)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u16 *)(out_buf + select_location) = (u16)(dict2d_cur->indata);
@@ -17094,18 +17094,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 2, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17123,18 +17123,18 @@ skip_extras:
             memcpy(new_buf + select_location + 2, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 2;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17175,18 +17175,18 @@ skip_extras:
           {
             *(u32 *)(out_buf + select_location) = (u32)(dict1d_cur->outdata);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 0; // overwrite
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, out_buf, len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, out_buf, len, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             *(u32 *)(out_buf + select_location) = (u32)(dict2d_cur->indata);
@@ -17201,18 +17201,18 @@ skip_extras:
             memcpy(new_buf, out_buf, select_location);
             memcpy(new_buf + select_location, out_buf + select_location + 4, templen_l - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 1; // delete
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17230,18 +17230,18 @@ skip_extras:
             memcpy(new_buf + select_location + 4, out_buf + select_location,
                    len - select_location);
 
-            struct loghistory *tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
+            tmploghead = (struct loghistory *)ck_alloc(sizeof(struct loghistory));
             tmploghead->indata = dict2d_cur->indata;
             tmploghead->bytelen = 4;
             tmploghead->type = 2; // insert
             tmploghead->next = NULL;
-            struct loghistory *tmplognow = tmploghead;
+            tmplognow = tmploghead;
 
             tmplognow->outdata = (dict1d_cur->outdata);
             u64 tmp_favorite_list[500000];
             tmp_favorite_list[0] = select_location;
             u64 tmp_favorite_list_num = 1;
-            if (common_fuzz_stuff(argv, new_buf, templen_l, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+            if (common_fuzz_stuff(argv, new_buf, templen_l, tmp_favorite_list, tmp_favorite_list_num))
               goto abandon_entry;
             stage_max++;
             ck_free(new_buf);
@@ -17372,8 +17372,8 @@ pacemaker_fuzzing:
           core_operator_cycles_puppet_v3[i] = core_operator_cycles_puppet_v2[i];
         }
 
-        struct loghistory *tmploghead = NULL;
-        struct loghistory *tmplognow = NULL;
+        tmploghead = NULL;
+        tmplognow = NULL;
         u64 tmp_favorite_list[500000];
         u64 tmp_favorite_list_num = 0;
         for (i = 0; i < use_stacking; i++)
@@ -20133,7 +20133,7 @@ pacemaker_fuzzing:
 
         u64 temp_total_found = queued_paths + unique_crashes;
 
-        if (common_fuzz_stuff(argv, out_buf, temp_len, tmploghead, tmplognow, tmp_favorite_list, tmp_favorite_list_num))
+        if (common_fuzz_stuff(argv, out_buf, temp_len, tmp_favorite_list, tmp_favorite_list_num))
           goto abandon_entry_puppet;
 
         /* out_buf might have been mangled a bit, so let's restore it to its
