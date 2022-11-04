@@ -1000,33 +1000,31 @@ static void shuffle_ptrs(void **ptrs, u32 cnt)
 /* Build a list of processes bound to specific cores. Returns -1 if nothing
    can be found. Assumes an upper bound of 4k CPUs. */
 
-static void bind_to_free_cpu(void)
-{
+static void bind_to_free_cpu(void) {
 
-  DIR *d;
-  struct dirent *de;
+  DIR* d;
+  struct dirent* de;
   cpu_set_t c;
 
-  u8 cpu_used[4096] = {0};
+  u8 cpu_used[4096] = { 0 };
   u32 i;
 
-  if (cpu_core_count < 2)
-    return;
+  if (cpu_core_count < 2) return;
 
-  if (getenv("AFL_NO_AFFINITY"))
-  {
+  if (getenv("AFL_NO_AFFINITY")) {
 
     WARNF("Not binding to a CPU core (AFL_NO_AFFINITY set).");
     return;
+
   }
 
   d = opendir("/proc");
 
-  if (!d)
-  {
+  if (!d) {
 
     WARNF("Unable to access /proc - can't scan for free CPU cores.");
     return;
+
   }
 
   ACTF("Checking CPU core loadout...");
@@ -1041,52 +1039,48 @@ static void bind_to_free_cpu(void)
      fail for some exotic binding setups, but is likely good enough in almost
      all real-world use cases. */
 
-  while ((de = readdir(d)))
-  {
+  while ((de = readdir(d))) {
 
-    u8 *fn;
-    FILE *f;
+    u8* fn;
+    FILE* f;
     u8 tmp[MAX_LINE];
     u8 has_vmsize = 0;
 
-    if (!isdigit(de->d_name[0]))
-      continue;
+    if (!isdigit(de->d_name[0])) continue;
 
     fn = alloc_printf("/proc/%s/status", de->d_name);
 
-    if (!(f = fopen(fn, "r")))
-    {
+    if (!(f = fopen(fn, "r"))) {
       ck_free(fn);
       continue;
     }
 
-    while (fgets(tmp, MAX_LINE, f))
-    {
+    while (fgets(tmp, MAX_LINE, f)) {
 
       u32 hval;
 
       /* Processes without VmSize are probably kernel tasks. */
 
-      if (!strncmp(tmp, "VmSize:\t", 8))
-        has_vmsize = 1;
+      if (!strncmp(tmp, "VmSize:\t", 8)) has_vmsize = 1;
 
       if (!strncmp(tmp, "Cpus_allowed_list:\t", 19) &&
           !strchr(tmp, '-') && !strchr(tmp, ',') &&
           sscanf(tmp + 19, "%u", &hval) == 1 && hval < sizeof(cpu_used) &&
-          has_vmsize)
-      {
+          has_vmsize) {
 
         cpu_used[hval] = 1;
         break;
+
       }
+
     }
 
     ck_free(fn);
     fclose(f);
+
   }
 
   closedir(d);
-
   if (cpu_to_bind_given) {
 
     if (cpu_to_bind >= cpu_core_count)
@@ -1103,8 +1097,7 @@ static void bind_to_free_cpu(void)
 
   }
 
-  if (i == cpu_core_count)
-  {
+  if (i == cpu_core_count) {
 
     SAYF("\n" cLRD "[-] " cRST
          "Uh-oh, looks like all %u CPU cores on your system are allocated to\n"
@@ -1114,6 +1107,7 @@ static void bind_to_free_cpu(void)
          cpu_core_count);
 
     FATAL("No more free CPU cores");
+
   }
 
   OKF("Found a free CPU core, binding to #%u.", i);
@@ -1125,6 +1119,7 @@ static void bind_to_free_cpu(void)
 
   if (sched_setaffinity(0, sizeof(c), &c))
     PFATAL("sched_setaffinity failed");
+
 }
 
 #endif /* HAVE_AFFINITY */
