@@ -21703,7 +21703,7 @@ int main(int argc, char **argv)
     SAYF("default limit_time_puppet %llu\n", limit_time_puppet);
   }
 
-  while ((opt = getopt(argc, argv, "+i:o:f:m:t:G:V:T:L:dnCB:S:M:x:Q")) > 0)
+  while ((opt = getopt(argc, argv, "+i:o:f:m:b:t:G:V:T:L:dnCB:S:M:x:Q")) > 0)
 
     switch (opt)
     {
